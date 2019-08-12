@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-class CustomCallBack(Callback):
+class CustomCallback(Callback):
     def __init__(self, run_folder, print_every_n_batch, initial_epoch, vae):
         self.epoch = initial_epoch
         self.run_folder = run_folder
@@ -14,7 +14,7 @@ class CustomCallBack(Callback):
     def on_batch_end(self, batch, logs={}):
         if batch % self.print_every_n_batch == 0:
             z_new = np.random.normal(size=(1, self.vae.z_dim))
-            reconst = self.decoder.predict(np.array(z_new))[0].squeeze()
+            reconst = self.vae.decoder.predict(np.array(z_new))[0].squeeze()
             filepath = os.path.join(self.run_folder, 'images',
                                     'img_' + str(self.epoch).zfill(3) + '_' + str(batch) + '.jpg')
 

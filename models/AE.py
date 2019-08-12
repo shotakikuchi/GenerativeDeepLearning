@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.append(os.pardir)
+
 from keras.layers import Input, Conv2D, Flatten, Dense, Conv2DTranspose, Reshape, Lambda, Activation, \
     BatchNormalization, LeakyReLU, Dropout
 from keras.models import Model
@@ -42,7 +47,7 @@ class AutoEncoder():
         self.n_layers_encoder = len(encoder_conv_filters)
         self.n_layers_decoder = len(decoder_conv_t_filters)
 
-        self.learning_late = None
+        self.learning_rate = None
         self.encoder = None
         self.decoder = None
         self.model = None
@@ -56,9 +61,9 @@ class AutoEncoder():
 
         for i in range(self.n_layers_encoder):
             conv_layer = Conv2D(
-                filters=self.encoder_conv_filters,
-                kernel_size=self.encoder_conv_kernel_size,
-                strides=self.encoder_conv_strides,
+                filters=self.encoder_conv_filters[i],
+                kernel_size=self.encoder_conv_kernel_size[i],
+                strides=self.encoder_conv_strides[i],
                 padding='same',
                 name='encoder_conv' + str(i)
             )
@@ -79,11 +84,11 @@ class AutoEncoder():
         self.encoder = Model(encoder_input, encoder_output)
 
         # Decoder
-        decoder_input = Input(shape=(self.z_dim), name='decoder_input')
+        decoder_input = Input(shape=(self.z_dim,), name='decoder_input')
         x = Dense(np.prod(shape_before_flattening))(decoder_input)
         x = Reshape(shape_before_flattening)(x)
 
-        for i in range(self.decoder_conv_t_filters):
+        for i in range(self.n_layers_decoder):
             conv_t_layer = Conv2DTranspose(
                 filters=self.decoder_conv_t_filters[i],
                 kernel_size=self.decoder_conv_t_kernel_size[i],
@@ -113,7 +118,7 @@ class AutoEncoder():
         self.model = Model(model_input, model_output)
 
     def compile(self, learning_rate):
-        self.learning_late = learning_rate
+        self.learning_rate = learning_rate
         optimizer = Adam(lr=learning_rate)
 
         # loss function
