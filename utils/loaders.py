@@ -1,8 +1,8 @@
 import pickle
 import os
 from os import walk
-from keras.datasets import mnist
 import numpy as np
+from keras.preprocessing.image import ImageDataGenerator
 from keras.datasets import mnist, cifar100, cifar10
 
 
@@ -83,3 +83,20 @@ def load_cifar(label, num):
     x_data = (x_data.astype('float32') - 127.5) / 127.5
 
     return (x_data, y_data)
+
+
+def load_celeb(data_dir, data_name, image_size, batch_size):
+    # data_folder = os.path.join("./data", data_name)
+    data_folder = os.path.join(data_dir, data_name)
+
+    data_gen = ImageDataGenerator(preprocessing_function=lambda x: (x.astype('float32') - 127.5) / 127.5)
+
+    x_train = data_gen.flow_from_directory(data_folder
+                                           , target_size=(image_size, image_size)
+                                           , batch_size=batch_size
+                                           , shuffle=True
+                                           , class_mode='input'
+                                           , subset="training"
+                                           )
+
+    return x_train
